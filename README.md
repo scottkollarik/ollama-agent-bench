@@ -4,7 +4,7 @@
 
 ![Requires Ollama](https://img.shields.io/badge/requires-Ollama_%E2%89%A5_0.6-blue)
 ![Node.js](https://img.shields.io/badge/node-%E2%89%A518-green)
-![Platform](https://img.shields.io/badge/platform-macOS_%7C_Linux-lightgrey)
+![Platform](https://img.shields.io/badge/platform-macOS_%7C_Linux_%7C_WSL-lightgrey)
 
 ---
 
