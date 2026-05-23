@@ -1,8 +1,23 @@
 # ollama-agent-bench
 
-A local benchmark harness for measuring Ollama model performance across task types,
-think levels, and concurrent agent fanout. Runs entirely on-device and visualizes results
-in a browser-based React UI.
+> Benchmark your local Ollama models as orchestrator + worker agents — quality scores, think-level comparisons, and concurrent fanout, all visualized in a browser UI.
+
+![Requires Ollama](https://img.shields.io/badge/requires-Ollama_%E2%89%A5_0.6-blue)
+![Node.js](https://img.shields.io/badge/node-%E2%89%A518-green)
+![Platform](https://img.shields.io/badge/platform-macOS_%7C_Linux-lightgrey)
+
+---
+
+## What you get
+
+Run `npm run benchmark` and open the browser. The UI shows:
+
+- **Quality scores** per model across task types (instruction following, reasoning, coding, RAG, tool use)
+- **Think-level breakdown** — Direct vs Low / Medium / High thinking, side by side
+- **Fanout chart** — concurrent throughput (req/s) standalone vs co-resident with an orchestrator model loaded
+- **Hardware profile** — auto-detected concurrency ceilings so tests are safe for your machine
+
+Everything runs on-device. No cloud, no API keys.
 
 ---
 
