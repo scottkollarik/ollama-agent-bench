@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local benchmark data — runs and system profiles are generated locally
+benchmark-runs/
+
+# OS
+.DS_Store
