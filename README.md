@@ -178,8 +178,3 @@ npm run preview    # local preview of the static build
 
 The `dist/` folder is a self-contained static site — copy it anywhere.
 
----
-
-## Benchmark journal
-
-Notable benchmark runs and observations are recorded in [BENCHMARK_JOURNAL.md](BENCHMARK_JOURNAL.md).
