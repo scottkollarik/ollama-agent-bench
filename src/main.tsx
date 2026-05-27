@@ -262,6 +262,9 @@ const fmtBytes = (b: number) =>
 const shortName = (model: string) =>
   (model.split(":")[0].split("/").pop() ?? model).slice(0, 20);
 
+const hasThinking = (m: ModelSummary) =>
+  m.metadata.capabilities.some(c => c.toLowerCase() === "thinking");
+
 function App() {
   const [view, setView] = useState<View>("dashboard");
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -572,10 +575,18 @@ function App() {
               <div className="modeDiagnostics">
                 <span>Think-level diagnostics</span>
                 <strong>Direct {pct(selected.directQuality)}</strong>
-                <strong>Low {selected.lowQuality !== null ? pct(selected.lowQuality) : "n/a"}</strong>
-                <strong>Medium {selected.mediumQuality !== null ? pct(selected.mediumQuality) : "n/a"}</strong>
-                <strong>High {selected.highQuality !== null ? pct(selected.highQuality) : "n/a"}</strong>
-                <small>Per-level averages. n/a means that think level has not been benchmarked yet. Role scores use the best available think level.</small>
+                {hasThinking(selected) && (
+                  <>
+                    <strong>Low {selected.lowQuality !== null ? pct(selected.lowQuality) : <em className="notYetRun">not yet run</em>}</strong>
+                    <strong>Medium {selected.mediumQuality !== null ? pct(selected.mediumQuality) : <em className="notYetRun">not yet run</em>}</strong>
+                    <strong>High {selected.highQuality !== null ? pct(selected.highQuality) : <em className="notYetRun">not yet run</em>}</strong>
+                  </>
+                )}
+                <small>
+                  {hasThinking(selected)
+                    ? "Per-level averages. \"not yet run\" means supported but not yet benchmarked. Role scores use the best available think level."
+                    : "Direct mode only — this model does not report a thinking capability."}
+                </small>
               </div>
 
               <section className="band">
@@ -611,7 +622,7 @@ function App() {
                         runId: r.runId,
                         Quality: Math.round(r.quality * 100),
                         Direct: Math.round(r.directQuality * 100),
-                        Medium: Math.round(r.deliberateQuality * 100)
+                        ...(hasThinking(selected) ? { Medium: Math.round(r.deliberateQuality * 100) } : {})
                       }))}
                       margin={{ top: 4, right: 16, left: 0, bottom: 0 }}
                       barGap={2}
@@ -624,29 +635,29 @@ function App() {
                       <Legend wrapperStyle={{ fontSize: 12 }} />
                       <Bar dataKey="Quality" fill={COLORS.primary} radius={[3, 3, 0, 0]} />
                       <Bar dataKey="Direct" fill={COLORS.orchestrator} radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="Medium" fill={COLORS.deliberate} radius={[3, 3, 0, 0]} />
+                      {hasThinking(selected) && <Bar dataKey="Medium" fill={COLORS.deliberate} radius={[3, 3, 0, 0]} />}
                     </BarChart>
                   </ResponsiveContainer>
                   <div className="table" style={{ marginTop: 12 }}>
-                    <div className="thead historyRow">
+                    <div className={["thead historyRow", hasThinking(selected) ? "" : "historyRowNoThink"].filter(Boolean).join(" ")}>
                       <span>Run</span>
                       <span>Quality</span>
                       <span>Direct</span>
-                      <span>Medium</span>
+                      {hasThinking(selected) && <span>Medium</span>}
                       <span>Orchestrator</span>
                       <span>Worker</span>
                     </div>
                     {selected.runs.map((run) => (
                       <button
                         key={run.runId}
-                        className={["trow historyRow", run.runId === effectiveRunId ? "activeRun" : ""].filter(Boolean).join(" ")}
+                        className={["trow historyRow", hasThinking(selected) ? "" : "historyRowNoThink", run.runId === effectiveRunId ? "activeRun" : ""].filter(Boolean).join(" ")}
                         onClick={() => setSelectedRunId(run.runId === effectiveRunId ? null : run.runId)}
                         title="Click to view this run's probe results"
                       >
                         <span>{fmtDate(run.generatedAt)}<small>{run.runId}</small></span>
                         <span>{pct(run.quality)}</span>
                         <span>{pct(run.directQuality)}</span>
-                        <span>{pct(run.deliberateQuality)}</span>
+                        {hasThinking(selected) && <span>{pct(run.deliberateQuality)}</span>}
                         <span>{pct(run.orchestratorScore)}</span>
                         <span>{pct(run.workerScore)}</span>
                       </button>

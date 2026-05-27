@@ -679,6 +679,16 @@ h1 {
   grid-template-columns: 1.6fr 0.6fr 0.6fr 0.7fr 0.8fr 0.7fr;
 }
 
+.historyRowNoThink {
+  grid-template-columns: 1.6fr 0.6fr 0.6fr 0.8fr 0.7fr;
+}
+
+.modeDiagnostics .notYetRun {
+  color: #a0b5aa;
+  font-style: normal;
+  font-size: 12px;
+}
+
 .trow.activeRun {
   border-color: #2e8b5d;
   background: #edf7f0;
