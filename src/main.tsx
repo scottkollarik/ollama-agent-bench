@@ -261,9 +261,6 @@ const fmtBytes = (b: number) =>
   b >= 1e9  ? `${(b / 1e9).toFixed(1)} GB` :
   b >= 1e6  ? `${(b / 1e6).toFixed(0)} MB` : `${b} B`;
 
-const shortName = (model: string) =>
-  (model.split(":")[0].split("/").pop() ?? model).slice(0, 20);
-
 const fullName = (model: string) => {
   const [name, tag] = model.split(":");
   const base = name.split("/").pop() ?? name;
@@ -425,6 +422,8 @@ function App() {
 
       {view === "knowledge" ? (
         <KnowledgeArticle profile={profile} models={activeModels} utilityModels={benchmark.utilityModels ?? []} />
+      ) : benchmark.models.length === 0 ? (
+        <EmptyState />
       ) : (
       <>
 
@@ -1121,6 +1120,18 @@ function AgentRole({ icon, title, text }: { icon: React.ReactNode; title: string
       <div>{icon}<strong>{title}</strong></div>
       <p>{text}</p>
     </article>
+  );
+}
+
+function EmptyState() {
+  return (
+    <section className="emptyState">
+      <Activity size={40} strokeWidth={1.5} />
+      <h2>No benchmark data yet</h2>
+      <p>Run the benchmark script to generate results. Make sure Ollama is running and you have at least one model pulled.</p>
+      <pre>bash scripts/run-ollama-benchmarks.sh</pre>
+      <small>Results compile automatically when the run finishes. Refresh the page afterward.</small>
+    </section>
   );
 }
 
