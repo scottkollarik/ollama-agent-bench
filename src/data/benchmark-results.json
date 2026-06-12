@@ -1,0 +1,21 @@
+{
+  "lastUpdated": "",
+  "allRuns": [],
+  "currentModels": [],
+  "host": {
+    "runner": "Run scripts/run-ollama-benchmarks.sh to generate results.",
+    "timeoutMs": 120000,
+    "machine": { "name": "", "chip": "", "memory": "" },
+    "system": {
+      "disk": { "total": 0, "used": 0, "free": 0 },
+      "memory": { "total": 0, "free": 0 },
+      "ollamaModelsBytes": 0
+    }
+  },
+  "tasks": [],
+  "models": [],
+  "utilityModels": [],
+  "results": [],
+  "concurrency": [],
+  "coResidentConcurrency": []
+}
