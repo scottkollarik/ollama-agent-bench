@@ -65,6 +65,7 @@ type RunSummary = {
   mediumMs: number | null;
   highMs: number | null;
   avgEvalRate: number;
+  avgPromptEvalRate?: number;
   maxRecommendedAgents: number;
   maxCoResidentAgents?: number;
 };
@@ -116,6 +117,7 @@ type ResultRow = {
   score: number;
   durationMs: number;
   evalRate: number | null;
+  promptEvalRate: number | null;
   ok: boolean;
   sample: string;
 };
@@ -262,6 +264,12 @@ const fmtBytes = (b: number) =>
 const shortName = (model: string) =>
   (model.split(":")[0].split("/").pop() ?? model).slice(0, 20);
 
+const fullName = (model: string) => {
+  const [name, tag] = model.split(":");
+  const base = name.split("/").pop() ?? name;
+  return tag ? `${base}:${tag}`.slice(0, 32) : base.slice(0, 32);
+};
+
 const hasThinking = (m: ModelSummary) =>
   m.metadata.capabilities.some(c => c.toLowerCase() === "thinking");
 
@@ -369,7 +377,7 @@ function App() {
     [...(showArchived ? benchmark.models : activeModels)]
       .sort((a, b) => b.orchestratorScore - a.orchestratorScore)
       .map((m) => ({
-        model: shortName(m.model),
+        model: fullName(m.model),
         Orchestrator: Math.round(m.orchestratorScore * 100),
         Worker: Math.round(m.workerScore * 100),
         archived: m.archived
@@ -582,6 +590,12 @@ function App() {
                     <strong>High {selected.highQuality !== null ? pct(selected.highQuality) : <em className="notYetRun">not yet run</em>}</strong>
                   </>
                 )}
+                {selected.avgEvalRate > 0 && (
+                  <strong>
+                    Gen {selected.avgEvalRate.toFixed(1)} tok/s out
+                    {(selected.avgPromptEvalRate ?? 0) > 0 ? ` · ${selected.avgPromptEvalRate!.toFixed(1)} tok/s in` : ""}
+                  </strong>
+                )}
                 <small>
                   {hasThinking(selected)
                     ? "Per-level averages. \"not yet run\" means supported but not yet benchmarked. Role scores use the best available think level."
@@ -676,19 +690,24 @@ function App() {
                   )}
                 </h3>
                 <div className="table">
-                  <div className="thead">
+                  <div className="thead probeRow">
                     <span>Probe</span>
                     <span>Mode</span>
                     <span>Score</span>
                     <span>Latency</span>
+                    <span>tok/s</span>
                     <span>Role signal</span>
                   </div>
                   {rows.map((row) => (
-                    <button className="trow" key={`${row.model}-${row.taskId}-${row.runId}`} title={row.sample}>
+                    <button className="trow probeRow" key={`${row.model}-${row.taskId}-${row.runId}`} title={row.sample}>
                       <span>{row.taskName}<small>{row.standard}</small></span>
                       <span>{row.mode}</span>
                       <span>{pct(row.score)}</span>
                       <span>{ms(row.durationMs)}</span>
+                      <span>
+                        {row.evalRate != null ? `${Math.round(row.evalRate)} out` : "—"}
+                        {row.promptEvalRate != null && <small>{Math.round(row.promptEvalRate)} in</small>}
+                      </span>
                       <span>{row.roleSignal}</span>
                     </button>
                   ))}
@@ -839,7 +858,7 @@ function KnowledgeArticle({
     const row: Record<string, string | number> = { subject };
     for (const model of radarModels) {
       const speedVal = Math.max(0, Math.min(1, 1 - model.directMs / benchmark.host.timeoutMs));
-      row[shortName(model.model)] =
+      row[fullName(model.model)] =
         subject === "Orchestrator" ? model.orchestratorScore :
         subject === "Worker" ? model.workerScore :
         subject === "Critic" ? (model.criticScore ?? model.deliberateQuality) :
@@ -880,8 +899,8 @@ function KnowledgeArticle({
                 {radarModels.map((model, index) => (
                   <Radar
                     key={model.model}
-                    name={shortName(model.model)}
-                    dataKey={shortName(model.model)}
+                    name={fullName(model.model)}
+                    dataKey={fullName(model.model)}
                     stroke={RADAR_COLORS[index % RADAR_COLORS.length]}
                     fill={RADAR_COLORS[index % RADAR_COLORS.length]}
                     fillOpacity={0.08}

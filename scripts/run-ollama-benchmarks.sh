@@ -460,3 +460,8 @@ run_coresident_fanout
 ollama ps >"$RUN_DIR/ollama-ps-end.txt"
 printf '%s\n' "$RUN_DIR" > benchmark-runs/latest-path.txt
 printf 'Raw benchmark output written to %s\n' "$RUN_DIR"
+
+if command -v node >/dev/null 2>&1; then
+  printf 'Compiling results...\n'
+  node "$(dirname "$0")/compile-results.mjs"
+fi

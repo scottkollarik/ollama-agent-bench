@@ -152,7 +152,7 @@ function scoreAgentPlan(output) {
 
 function parseVerbose(output) {
   const get = (label) => {
-    const match = output.match(new RegExp(`${label}:\\s+([0-9.]+)`, "i"));
+    const match = output.match(new RegExp(`^${label}:\\s+([0-9.]+)`, "im"));
     return match ? Number(match[1]) : null;
   };
   return {
@@ -640,6 +640,7 @@ function computeRunSummary(model, runData) {
     highMs,
     deliberateMs: mediumMs ?? lowMs ?? highMs ?? 0,
     avgEvalRate: Number(mean(rows.map((r) => r.evalRate).filter((v) => typeof v === "number")).toFixed(2)),
+    avgPromptEvalRate: Number(mean(rows.map((r) => r.promptEvalRate).filter((v) => typeof v === "number")).toFixed(2)),
     maxRecommendedAgents,
     maxCoResidentAgents
   };
